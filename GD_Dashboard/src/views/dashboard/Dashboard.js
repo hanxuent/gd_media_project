@@ -30,6 +30,8 @@ import { useNavigate } from 'react-router-dom';
 
 const RoomList = () => {
   const [rooms, setRooms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');  // search 
+  const [selectedRooms, setSelectedRooms] = useState([]);  //select room
   const [showModal, setShowModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [newRoom, setNewRoom] = useState({
@@ -42,6 +44,7 @@ const RoomList = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [toast, addToast] = useState([]);
   const navigate = useNavigate();
+
   useEffect(() => {
     const token = localStorage.getItem('token');
 
@@ -170,6 +173,18 @@ const RoomList = () => {
     </CToast>
   );
 
+  const handleSelectRoom = (roomId) => {  // handle selection 
+    setSelectedRooms((prevSelected) =>
+      prevSelected.includes(roomId)
+        ? prevSelected.filter((id) => id !== roomId)
+        : [...prevSelected, roomId]
+    );
+  };
+
+  const filteredRooms = rooms.filter((room) =>
+    room.room_number.toString().includes(searchTerm)  
+  );
+
   return (
     <CCard>
       <CCardHeader>
@@ -179,9 +194,17 @@ const RoomList = () => {
         </CButton>
       </CCardHeader>
       <CCardBody>
+      <CFormInput
+          type="text"
+          placeholder="Search by Room Number"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}  
+          className="mb-3"
+        />
         <CTable striped hover>
           <CTableHead>
             <CTableRow>
+              <CTableHeaderCell></CTableHeaderCell>  {/* New column for checkboxes */}
               <CTableHeaderCell>Room Number</CTableHeaderCell>
               <CTableHeaderCell>IP Address</CTableHeaderCell>
               <CTableHeaderCell>MAC Address</CTableHeaderCell>
@@ -190,8 +213,18 @@ const RoomList = () => {
             </CTableRow>
           </CTableHead>
           <CTableBody>
-            {rooms.map((room, index) => (
-              <CTableRow key={index}>
+            {filteredRooms.map((room, index) => (
+              <CTableRow
+                key={index}
+                className={selectedRooms.includes(room.id) ? 'table-info' : ''} 
+              >
+                <CTableDataCell>
+                  <CFormCheck
+                    type="checkbox"
+                    checked={selectedRooms.includes(room.id)}  
+                    onChange={() => handleSelectRoom(room.id)}  
+                  />
+                </CTableDataCell>
                 <CTableDataCell>{room.room_number}</CTableDataCell>
                 <CTableDataCell>{room.device_ip}</CTableDataCell>
                 <CTableDataCell>{room.mac_address}</CTableDataCell>
