@@ -4,13 +4,11 @@ import {
   cilSpeedometer,
   cilRoom,
   cilTag,
-  cilStar,
-  cilDescription,
-  cilEnvelopeOpen,
   cilBuilding,
+  cilEnvelopeOpen,
   cilCommentSquare
 } from '@coreui/icons'
-import { CNavGroup, CNavItem, CNavTitle } from '@coreui/react'
+import { CNavItem } from '@coreui/react'
 
 const _nav = [
   {
@@ -37,21 +35,9 @@ const _nav = [
   },
   {
     component: CNavItem,
-    name: 'Home Page',
-    to: '/home-page',
-    icon: <CIcon icon={cilRoom} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
     name: 'Live TV',
     to: '/live-tv',
     icon: <CIcon icon={cilTag} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Apps',
-    to: '/feedback',
-    icon: <CIcon icon={cilCommentSquare} customClassName="nav-icon" />,
   },
   {
     component: CNavItem,
@@ -65,8 +51,6 @@ const _nav = [
     to: '/messages',
     icon: <CIcon icon={cilEnvelopeOpen} customClassName="nav-icon" />,
   },
-
-
 ]
 
 export default _nav
