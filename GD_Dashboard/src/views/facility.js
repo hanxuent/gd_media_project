@@ -282,6 +282,7 @@ const Facility = () => {
                     {showModal ? 'Cancel' : 'Add Facility'}
                 </CButton>
             </CCardHeader>
+
             <CCardBody>
                 {loading ? ( // Show loading indicator
                     <div className="text-center">
@@ -306,6 +307,7 @@ const Facility = () => {
                                 <CTableHeaderCell>Updated at</CTableHeaderCell>
                             </CTableRow>
                         </CTableHead>
+
                         <CTableBody>
                             <TransitionGroup component={null}>
                                 {facilities.map((facility, index) => (
@@ -325,6 +327,7 @@ const Facility = () => {
                                                     <span>Unsupported file type</span>
                                                 )}
                                             </CTableDataCell>
+                                            
                                             <CTableDataCell>
                                                 <Tooltip title="Edit" arrow>
                                                     <CButton color="success" size="sm" className="m-1" onClick={() => handleEdit(facility)}>

@@ -5,7 +5,6 @@ import {
   cilRoom,
   cilTag,
   cilStar,
-  cilDescription,
   cilEnvelopeOpen,
   cilBuilding,
   cilCommentSquare,
@@ -33,18 +32,6 @@ const _nav = [
     component: CNavItem,
     name: 'Welcome Page',
     to: '/welcomepage',
-    icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Background',
-    to: '/background',
-    icon: <CIcon icon={cilSettings} customClassName="nav-icon" />,
-  },
-  {
-    component: CNavItem,
-    name: 'Home Page',
-    to: '/home-page',
     icon: <CIcon icon={cilHome} customClassName="nav-icon" />,
   },
   {

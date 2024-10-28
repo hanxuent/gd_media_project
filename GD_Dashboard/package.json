@@ -60,7 +60,7 @@
     "postcss": "^8.4.38",
     "prettier": "3.3.2",
     "sass": "^1.77.5",
-    "vite": "^5.4.3"
+    "vite": "^5.4.10"
   },
   "main": ".eslintrc.js",
   "keywords": []

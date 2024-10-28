@@ -50,6 +50,9 @@ const RoomList = () => {
   const [toast, addToast] = useState([]);
   const navigate = useNavigate();
   const [animateRow, setAnimateRow] = useState(null);
+  const [showFileNameModal, setShowFileNameModal] = useState(false); // New state for file name modal
+  const [fileName, setFileName] = useState(''); // Add this line
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -236,6 +239,59 @@ const RoomList = () => {
     addToast(createToast('Room moved down successfully', 'info'));
   };
 
+  const handleGenerateAllDataJson = async () => {
+    const token = localStorage.getItem('token');
+    
+    try {
+      // Fetch data from each table
+      const tables = ['activity', 'apps', 'channels', 'facilities', 'messages', 'rooms'];
+      const allData = {};
+  
+      for (const table of tables) {
+        const response = await fetch(`http://localhost:3001/${table}`, {
+          headers: {
+            Authorization: token,
+          },
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Error fetching data from ${table}`);
+        }
+  
+        const data = await response.json();
+        allData[table] = data;
+      }
+  
+      // Use the filename specified or default to "hotel_management_data.json"
+      const json = JSON.stringify(allData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+  
+      const downloadName = fileName.trim() ? fileName : 'hotel_management_data.json'; // Default filename
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${downloadName}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+  
+      addToast(createToast('Data JSON file generated successfully', 'success'));
+  
+    } catch (error) {
+      console.error('Error generating JSON file:', error);
+      addToast(createToast('Failed to generate JSON file', 'danger'));
+    }
+  };
+  
+
+  const isValidFileName = (name) => {
+    const invalidChars = /[<>:"/\\|?*\x00-\x1F]/; 
+    return !invalidChars.test(name);
+  };
+
+  
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', marginBottom: '20px' }}>
@@ -264,10 +320,14 @@ const RoomList = () => {
       <CCard>
         <CCardHeader>
           Hotel Room List
-          <CButton color="warning" className="float-end" onClick={() => setShowModal(!showModal)}>
+          <CButton color="warning" className="float-end me-2" onClick={() => setShowFileNameModal(true)}>
+          Generate JSON
+          </CButton>
+          <CButton color="warning" className="float-end me-2" onClick={() => setShowModal(!showModal)}>
             {showModal ? 'Cancel' : 'Add Room'}
           </CButton>
         </CCardHeader>
+
         <CCardBody>
           <CFormInput
             type="text"
@@ -332,77 +392,83 @@ const RoomList = () => {
         </CCardBody>
         <CToaster position="top-right">{toast}</CToaster>
 
+        
         <CModal visible={showModal} onClose={() => setShowModal(false)}>
-          <CModalHeader onClose={() => setShowModal(false)}>
-            <CModalTitle>{editMode ? 'Edit Room' : 'Add Room'}</CModalTitle>
-          </CModalHeader>
-          <CModalBody>
-            <CForm>
-              <CFormInput
-                type="text"
-                name="room_number"
-                placeholder="Room Number"
-                value={newRoom.room_number}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-              <CFormInput
-                type="text"
-                name="device_ip"
-                placeholder="IP Address"
-                value={newRoom.device_ip}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-              <CFormInput
-                type="text"
-                name="mac_address"
-                placeholder="MAC Address"
-                value={newRoom.mac_address}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-              <CFormInput
-                type="text"
-                name="j_version"
-                placeholder="J Version"
-                value={newRoom.j_version}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-              <CFormCheck
-                type="checkbox"
-                name="active_status"
-                label="Active"
-                checked={newRoom.active_status}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-              <select
-                className="form-select mb-3"
-                name="group_id" // Add the group_id to the form
-                value={newRoom.group_id}
-                onChange={handleInputChange}
-              >
-                <option value="">Select Group</option>
-                {groups.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
-              {errorMessage && <CAlert color="danger">{errorMessage}</CAlert>}
-            </CForm>
-          </CModalBody>
-          <CModalFooter>
-            <CButton color="secondary" onClick={() => setShowModal(false)}>
-              Cancel
-            </CButton>
-            <CButton color="success" onClick={handleAddRoom}>
+        <CModalHeader>
+          <CModalTitle>{editMode ? 'Edit Room' : 'Add Room'}</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm onSubmit={handleAddRoom}>
+            <CFormInput
+              name="room_number"
+              placeholder="Room Number"
+              value={newRoom.room_number}
+              onChange={handleInputChange}
+              required
+            />
+            <CFormInput
+              name="device_ip"
+              placeholder="Device IP"
+              value={newRoom.device_ip}
+              onChange={handleInputChange}
+              required
+            />
+            <CFormInput
+              name="mac_address"
+              placeholder="MAC Address"
+              value={newRoom.mac_address}
+              onChange={handleInputChange}
+              required
+            />
+            <CFormInput
+              name="j_version"
+              placeholder="Version"
+              value={newRoom.j_version}
+              onChange={handleInputChange}
+              required
+            />
+            <CFormCheck
+              label="Active Status"
+              checked={newRoom.active_status}
+              onChange={handleInputChange}
+              name="active_status"
+            />
+            {errorMessage && <CAlert color="danger">{errorMessage}</CAlert>}
+            <CButton type="submit" color="primary" className="mt-2">
               Save Room
             </CButton>
-          </CModalFooter>
-        </CModal>
+          </CForm>
+        </CModalBody>
+      </CModal>
+
+      {/* Modal for File Name Input */}
+      <CModal visible={showFileNameModal} onClose={() => setShowFileNameModal(false)}>
+        <CModalHeader>
+          <CModalTitle>Enter File Name</CModalTitle>
+        </CModalHeader>
+        <CModalBody>
+          <CForm>
+            <CFormInput
+              type="text"
+              placeholder="Enter file name (Default: Room.js)"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              className="mb-3"
+            />
+          </CForm>
+        </CModalBody>
+        <CModalFooter>
+          <CButton color="secondary" onClick={() => setShowFileNameModal(false)}>
+            Cancel
+          </CButton>
+          <CButton color="primary" onClick={() => {
+            handleGenerateAllDataJson();
+            setShowFileNameModal(false); // Close the modal after generating
+          }}>
+            Generate JSON
+          </CButton>
+        </CModalFooter>
+      </CModal>
       </CCard>
     </>
   );
